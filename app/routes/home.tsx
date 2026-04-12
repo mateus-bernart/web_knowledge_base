@@ -1,13 +1,10 @@
-import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import { Outlet } from "react-router";
+import NavBar from "~/components/navbar";
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
-
-export default function Home() {
-  return <Welcome />;
+export default async function Home() {
+  return (
+    <div>
+      <h1>Home page</h1>
+    </div>
+  );
 }
