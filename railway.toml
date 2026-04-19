@@ -1,5 +1,6 @@
 [build]
-builder = "nixpacks"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "yarn build && PORT=3000 react-router-serve ./build/server/index.js"
+startCommand = "yarn start"
