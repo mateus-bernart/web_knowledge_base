@@ -3,6 +3,7 @@ export function apiClient(request: Request) {
   const token = getToken(cookie);
 
   const url = process.env.VITE_API_URL ?? "http://localhost:8000/api";
+  console.log("API URL:", process.env.VITE_API_URL);
 
   return (path: string, init?: RequestInit) =>
     fetch(`${url}${path}`, {
