@@ -1,0 +1,5 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "yarn build && PORT=3000 react-router-serve ./build/server/index.js"
