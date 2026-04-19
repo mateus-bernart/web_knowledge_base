@@ -1,13 +1,14 @@
+import { apiClient } from "../api";
+
 export async function loginUser(
+  request: Request,
   email: FormDataEntryValue,
   password: FormDataEntryValue,
 ) {
-  const res = await fetch("http://localhost:8000/api/login", {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
+  const api = apiClient(request);
+  const res = await api("/login", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 

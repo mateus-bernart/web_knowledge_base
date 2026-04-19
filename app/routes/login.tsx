@@ -15,7 +15,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const userLoginResponse = await loginUser(email, password);
+  const userLoginResponse = await loginUser(request, email, password);
 
   if (userLoginResponse.error) {
     return { error: userLoginResponse.error };
