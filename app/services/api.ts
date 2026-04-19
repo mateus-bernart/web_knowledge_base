@@ -2,8 +2,8 @@ export function apiClient(request: Request) {
   const cookie = request.headers.get("Cookie") ?? "";
   const token = getToken(cookie);
 
-  const url = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
-  
+  const url = process.env.VITE_API_URL ?? "http://localhost:8000/api";
+
   return (path: string, init?: RequestInit) =>
     fetch(`${url}${path}`, {
       ...init,
