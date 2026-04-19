@@ -1,4 +1,9 @@
-import { redirect, type ActionFunctionArgs } from "react-router";
+import { BookOpen } from "lucide-react";
+import { Link, redirect, type ActionFunctionArgs } from "react-router";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { loginUser } from "~/services/auth";
 
 type ActionData = {
   error?: string;
@@ -10,78 +15,41 @@ export async function action({ request }: ActionFunctionArgs) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const res = await fetch("http://localhost:8000/api/login", {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json", // 👈 add this
-    },
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
+  const userLoginResponse = await loginUser(email, password);
 
-  if (!res.ok) {
-    return { error: "Credenciais inválidas" };
+  if (userLoginResponse.error) {
+    return { error: userLoginResponse.error };
   }
 
-  const data = await res.json();
-
   return redirect("/", {
-    headers: { "Set-Cookie": `token=${data.token}; Path=/; HttpOnly` },
+    headers: {
+      "Set-Cookie": `token=${userLoginResponse.token}; Path=/; HttpOnly`,
+    },
   });
 }
 
-export default async function Login({
-  actionData,
-}: {
-  actionData: ActionData;
-}) {
+export default function Login({ actionData }: { actionData: ActionData }) {
   return (
-    // <form method="post">
-    //   <div className="flex gap-5 flex-col items-center justify-center h-screen p-10">
-    //     <h1>Login</h1>
-
-    //     <input
-    //       name="email"
-    //       type="email"
-    //       placeholder="Email"
-    //       className="p-2 border-amber-500 border-2 bg-amber-50 placeholder-gray-400 rounded-lg"
-    //     />
-    //     <input
-    //       name="password"
-    //       type="password"
-    //       placeholder="Senha"
-    //       className="p-2 border-amber-500 border-2 bg-amber-50 placeholder-gray-400 rounded-lg"
-    //     />
-    //     {actionData?.error && <p>{actionData.error}</p>}
-    //     <button
-    //       type="submit"
-    //       className="p-2  rounded-lg text-white bg-amber-400 hover:cursor-pointer"
-    //     >
-    //       Entrar
-    //     </button>
-    //   </div>
-    // </form>
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-sm space-y-8 px-4">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 text-primary">
             <BookOpen className="h-8 w-8" />
-            <span className="text-2xl font-bold">StudyBase</span>
+            <span className="text-2xl font-bold">Base de conhecimento</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Sign in to your knowledge base
+            Entre na base do conhecimento logosófico.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form method="post" className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="voce@exemplo.com"
+              name="email"
               required
             />
           </div>
@@ -91,17 +59,19 @@ export default async function Login({
               id="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
               required
             />
           </div>
           <Button type="submit" className="w-full">
-            Sign in
+            Entrar
           </Button>
+          {actionData?.error && (
+            <p className="text-sm text-red-400">{actionData.error}</p>
+          )}
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
+        {/* <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
           <Link
             to="/signup"
@@ -109,7 +79,7 @@ export default async function Login({
           >
             Sign up
           </Link>
-        </p>
+        </p> */}
       </div>
     </div>
   );

@@ -1,6 +1,9 @@
 import { Outlet, redirect } from "react-router";
 import type { Route } from "./+types/layout";
-import NavBar from "~/components/navbar";
+import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { AppSidebar } from "~/components/AppSidebar";
+import Materials from "./materials";
+import { useView, ViewProvider } from "~/context/viewContext";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const cookie = request.headers.get("Cookie") ?? "";
@@ -13,9 +16,18 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Layout() {
   return (
-    <>
-      <NavBar />
-      <Outlet />
-    </>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <header className="h-12 flex items-center border-b border-border px-2">
+            <SidebarTrigger />
+          </header>
+          <main className="flex-1 p-4">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }

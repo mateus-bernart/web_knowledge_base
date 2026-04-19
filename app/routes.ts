@@ -10,7 +10,7 @@ export default [
   route("login", "routes/login.tsx"),
 
   layout("routes/layout.tsx", [
-    index("routes/home.tsx"),
+    index("routes/index.tsx"),
     route("logout", "routes/logout.tsx"),
     route("about", "routes/about.tsx"),
     ...prefix("materials", [

@@ -10,6 +10,10 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import NavBar from "./components/navbar";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { Toaster } from "./components/ui/sonner";
+import { AuthProvider } from "./context/authContext";
+import { ViewProvider } from "./context/viewContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -44,9 +48,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <div>
-      <Outlet />
-    </div>
+    <AuthProvider>
+      <ViewProvider>
+        <TooltipProvider>
+          <Toaster
+            toastOptions={{
+              classNames: {
+                success: "!bg-green-600 !text-green-100",
+                error: "!bg-red-600 !text-red-100 ",
+              },
+            }}
+          />
+          <Outlet />
+        </TooltipProvider>
+      </ViewProvider>
+    </AuthProvider>
   );
 }
 
@@ -68,8 +84,15 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="text-center">
+          <p className="mb-4 text-xl text-muted-foreground">{message}</p>
+          <p className="mb-4 text-xl text-muted-foreground">{details}</p>
+          <a href="/" className="text-primary underline hover:text-primary/90">
+            Retornar à página inicial.
+          </a>
+        </div>
+      </div>
       {stack && (
         <pre className="w-full p-4 overflow-x-auto">
           <code>{stack}</code>
