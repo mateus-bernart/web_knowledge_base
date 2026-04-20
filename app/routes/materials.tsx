@@ -16,6 +16,17 @@ import type { Material, MaterialType } from "~/types";
 import { ApiError } from "~/errors";
 import { useActionToast } from "~/hooks/useActionToast";
 import { Badge } from "~/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const api = apiClient(request);
@@ -179,22 +190,41 @@ export function MaterialsView({
             </div>
           </div>
 
-          <fetcher.Form
-            method="POST"
-            action="/materials"
-            className="relative z-10 shrink-0"
-          >
-            <input type="hidden" name="id" value={material.id} />
-            <input type="hidden" name="_method" value="DELETE" />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 shrink-0"
-              type="submit"
-            >
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
-          </fetcher.Form>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0 relative z-10"
+              >
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Deletar material?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Essa ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex items-center">
+                <AlertDialogCancel className="w-full">
+                  Cancelar
+                </AlertDialogCancel>
+                <fetcher.Form
+                  method="POST"
+                  action="/materials"
+                  className="w-full"
+                >
+                  <input type="hidden" name="id" value={material.id} />
+                  <input type="hidden" name="_method" value="DELETE" />
+                  <AlertDialogAction type="submit" className="w-full">
+                    Deletar
+                  </AlertDialogAction>
+                </fetcher.Form>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       ))}
     </div>
