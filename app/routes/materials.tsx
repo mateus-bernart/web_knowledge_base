@@ -91,110 +91,112 @@ export function MaterialsView({
 
   const groupId = 1;
 
-  console.log(materials);
-
   return (
-    <div>
+    <div className="overflow-x-hidden w-full">
       <CreateMaterialDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
         groupId={groupId}
         materialTypes={materialTypes}
       />
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <div className="relative flex-1 max-w-sm min-w-50">
+      {/* Search row */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Procurar materiais..."
-            className="pl-9"
+            className="pl-9 w-full"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
           />
         </div>
-        <Button onClick={() => setCreateOpen(true)} size="sm">
+        <Button
+          onClick={() => setCreateOpen(true)}
+          size="sm"
+          className="shrink-0"
+        >
           <Plus className="h-4 w-4 mr-1" /> Novo
         </Button>
       </div>
 
-      {materials?.map((material: Material) => {
-        return (
-          <div className="relative group flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-            <Link
-              to={`/materials/${material.id}`}
-              className="absolute inset-0"
-            />
+      {/* List */}
+      {materials?.map((material: Material) => (
+        <div
+          key={material.id}
+          className="relative group flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border w-full overflow-hidden"
+        >
+          <Link to={`/materials/${material.id}`} className="absolute inset-0" />
 
-            <div className="mt-0.5 p-2 rounded-md bg-muted">
-              {/* aplicar diferenciacao de icone por tipo */}
-              <File className="h-4 w-4 text-muted-foreground" />
-            </div>
-
-            <div className="flex-1 min-w-0 overflow-hidden">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm truncate">
-                  {material.title}
-                </span>
-                {material.visibility.description === "public" ? (
-                  <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
-                ) : (
-                  <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
-                )}
-              </div>
-
-              {material.content && (
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                  {material.content}
-                </p>
-              )}
-
-              <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                <span className="text-xs text-muted-foreground">
-                  {material.material_type.description}
-                </span>
-                <span className="text-xs text-muted-foreground">·</span>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(material.created_at).toLocaleDateString()}
-                </span>
-                {material.tags.length > 0 && (
-                  <>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    {material.tags.slice(0, 3).map((tag) => (
-                      <Badge
-                        key={tag.id}
-                        variant="outline"
-                        className="text-[10px] px-1.5 py-0"
-                      >
-                        {tag.description}
-                      </Badge>
-                    ))}
-                    {material.tags.length > 3 && (
-                      <span className="text-xs text-muted-foreground">
-                        +{material.tags.length - 3}
-                      </span>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-            <fetcher.Form
-              method="POST"
-              action="/materials"
-              className="relative z-10 shrink-0"
-            >
-              <input type="hidden" name="id" value={material.id} />
-              <input type="hidden" name="_method" value="DELETE" />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 transition-opacity shrink-0"
-                type="submit"
-              >
-                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-              </Button>
-            </fetcher.Form>
+          <div className="mt-0.5 p-2 rounded-md bg-muted shrink-0">
+            <File className="h-4 w-4 text-muted-foreground" />
           </div>
-        );
-      })}
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-medium text-sm truncate block min-w-0 overflow-hidden">
+                {material.title}
+              </span>
+              {material.visibility.description === "public" ? (
+                <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
+              ) : (
+                <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+              )}
+            </div>
+
+            {material.content && (
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-all">
+                {material.content}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-1.5 mt-2 min-w-0">
+              <span className="text-xs text-muted-foreground shrink-0">
+                {material.material_type.description}
+              </span>
+              <span className="text-xs text-muted-foreground">·</span>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {new Date(material.created_at).toLocaleDateString()}
+              </span>
+              {material.tags.length > 0 && (
+                <>
+                  <span className="text-xs text-muted-foreground">·</span>
+                  {material.tags.slice(0, 3).map((tag) => (
+                    <Badge
+                      key={tag.id}
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0 shrink-0"
+                    >
+                      {tag.description}
+                    </Badge>
+                  ))}
+                  {material.tags.length > 3 && (
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      +{material.tags.length - 3}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          <fetcher.Form
+            method="POST"
+            action="/materials"
+            className="relative z-10 shrink-0"
+          >
+            <input type="hidden" name="id" value={material.id} />
+            <input type="hidden" name="_method" value="DELETE" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0"
+              type="submit"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+            </Button>
+          </fetcher.Form>
+        </div>
+      ))}
     </div>
   );
 }

@@ -7,8 +7,6 @@ export function apiClient(request: Request) {
     process.env.API_URL ||
     "http://localhost:8000/api";
 
-  console.log("API URL:", url);
-
   return (path: string, init?: RequestInit) =>
     fetch(`${url}${path}`, {
       ...init,

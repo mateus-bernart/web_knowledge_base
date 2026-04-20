@@ -47,27 +47,31 @@ export default function CreateMaterialDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent
+        className="w-full max-w-lg mx-auto p-4 sm:p-6 rounded-t-2xl sm:rounded-xl overflow-y-auto"
+        style={{ maxHeight: "calc(100dvh - 2rem)" }}
+      >
         <DialogHeader>
           <DialogTitle>Novo Material</DialogTitle>
         </DialogHeader>
+
         <Form
           method="post"
-          className="space-y-4"
+          className="flex flex-col gap-4"
           onSubmit={() => onOpenChange(false)}
         >
           <input type="hidden" name="material_type_id" value={selectedTypeId} />
           <input type="hidden" name="flag_color" value={flagColor ?? ""} />
           <input type="hidden" name="tags" value={JSON.stringify(tags)} />
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-1.5">
             <Label>Título</Label>
             <Input placeholder="Título do material" name="title" required />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-1.5">
             <Label>Tipo</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {materialTypes.map((t) => (
                 <Button
                   key={t.id}
@@ -84,21 +88,26 @@ export default function CreateMaterialDialog({
 
           {selectedTypeId !== 1 && (
             <div className="border-2 border-dashed border-border rounded-lg p-6 text-center text-muted-foreground">
-              <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <Upload className="h-7 w-7 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Upload de arquivo</p>
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="flex flex-col min-w-0  gap-1.5">
             <Label>Conteúdo / Notas</Label>
             <Textarea
               placeholder="Escreva suas notas aqui..."
               name="content"
-              className="min-h-30"
+              className="min-h-25 w-full min-w-0 resize-none overflow-hidden"
+              style={{
+                wordBreak: "break-word",
+                whiteSpace: "pre-wrap",
+                overflowWrap: "break-word",
+              }}
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-1.5">
             <Label>Tags</Label>
             <Input
               placeholder={`Digite uma tag e pressione "Enter"`}
@@ -107,7 +116,7 @@ export default function CreateMaterialDialog({
               onKeyDown={handleAddTag}
             />
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="gap-1">
                     {tag}
@@ -121,15 +130,19 @@ export default function CreateMaterialDialog({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-1.5">
             <Label>Flag</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {(Object.entries(FLAG_COLORS) as [FlagColor, string][]).map(
                 ([color, hex]) => (
                   <button
                     key={color}
                     type="button"
-                    className={`h-6 w-6 rounded-full border-2 transition-transform ${flagColor === color ? "scale-125 border-foreground" : "border-transparent"}`}
+                    className={`h-6 w-6 rounded-full border-2 transition-transform ${
+                      flagColor === color
+                        ? "scale-125 border-foreground"
+                        : "border-transparent"
+                    }`}
                     style={{ backgroundColor: hex }}
                     onClick={() =>
                       setFlagColor(flagColor === color ? undefined : color)
@@ -144,22 +157,26 @@ export default function CreateMaterialDialog({
             <Input
               type="checkbox"
               name="is_public"
-              className="rounded h-5 w-5"
+              id="is-public"
+              className="h-4 w-4 rounded"
             />
             <Label htmlFor="is-public" className="text-sm font-normal">
               Público
             </Label>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button type="submit">Criar</Button>
+            <Button type="submit" className="w-full sm:w-auto">
+              Criar
+            </Button>
           </DialogFooter>
         </Form>
       </DialogContent>

@@ -35,11 +35,10 @@ export async function createMaterial(request: Request, formData: FormData) {
 export async function deleteMaterial(request: Request, id: number) {
   const api = apiClient(request);
   const res = await api(`/materials/${id}`, { method: "DELETE" });
-  console.log(res);
 
-  // if (res.status === 500) {
-  //   throw new ApiError("Ops! Erro no servidor", 500, "Contate o suporte.");
-  // }
+  if (res.status === 500) {
+    throw new ApiError("Ops! Erro no servidor", 500, "Contate o suporte.");
+  }
 
   if (!res.ok) {
     const data = await res.json();

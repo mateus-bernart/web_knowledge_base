@@ -1,9 +1,8 @@
-import { Outlet, redirect } from "react-router";
+import { Outlet, redirect, useNavigation } from "react-router";
 import type { Route } from "./+types/layout";
 import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/AppSidebar";
-import Materials from "./materials";
-import { useView, ViewProvider } from "~/context/viewContext";
+import { Loader2 } from "lucide-react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const cookie = request.headers.get("Cookie") ?? "";
@@ -15,6 +14,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function Layout() {
+  const navigation = useNavigation();
+  const isLoading = navigation.state !== "idle";
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -23,6 +25,12 @@ export default function Layout() {
           <header className="h-12 flex items-center border-b border-border px-2">
             <SidebarTrigger />
           </header>
+          {isLoading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+              <Loader2 className="animate-spin text-primary" size={28} />
+            </div>
+          )}
+
           <main className="flex-1 p-4">
             <Outlet />
           </main>

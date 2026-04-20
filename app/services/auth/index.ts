@@ -28,7 +28,6 @@ export async function getUser() {
   if (!res.ok) return { user: null, error: "Not authenticated" };
 
   const user = await res.json();
-  console.log("user ", user);
 
   return { user, error: null };
 }
