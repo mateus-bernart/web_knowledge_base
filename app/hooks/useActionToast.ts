@@ -1,21 +1,24 @@
-// app/hooks/useActionToast.ts
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import type { Toast } from "~/types";
 
-type ToastData =
-  | {
-      success: boolean;
-      message?: string;
-      action?: string;
-    }
-  | undefined;
+export function useActionToast(...dataSources: (Toast | undefined)[]) {
+  const shown = useRef(new Set<string>());
 
-export function useActionToast(...dataSources: ToastData[]) {
-  dataSources.forEach((data) => {
-    useEffect(() => {
-      if (!data) return;
-      if (data.success) toast.success(data.message);
-      else toast.error(data.message, { description: data.action });
-    }, [data]);
-  });
+  useEffect(
+    () => {
+      dataSources.forEach((data) => {
+        if (!data?.message) return;
+
+        const key = `${data.success}-${data.message}-${data.action}`;
+        if (shown.current.has(key)) return;
+
+        shown.current.add(key);
+
+        if (data.success) toast.success(data.message);
+        else toast.error(data.message, { description: data.action });
+      });
+    },
+    dataSources.map((d) => d?.message),
+  ); // eslint-disable-line react-hooks/exhaustive-deps
 }

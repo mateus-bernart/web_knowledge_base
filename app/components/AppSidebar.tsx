@@ -1,13 +1,14 @@
 import {
   BookOpen,
   FileText,
-  FolderOpen,
   Users,
   MessageSquare,
   Search,
   Plus,
   ChevronRight,
   LogOut,
+  Building,
+  Hammer,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,8 +35,13 @@ import { CreateFolderDialog } from "./CreateFolderDialog";
 import { useView } from "~/context/viewContext";
 import { useAuth } from "~/context/authContext";
 import { NavLink } from "react-router";
+import type { Group } from "~/types";
 
-export function AppSidebar() {
+type SidebarProps = {
+  groups: Group[];
+};
+
+export function AppSidebar({ groups }: SidebarProps) {
   const { state, setOpenMobile, isMobile, setOpen, toggleSidebar } =
     useSidebar();
   const collapsed = state === "collapsed";
@@ -46,11 +52,11 @@ export function AppSidebar() {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
+  const [activeGroup, setActiveGroupId] = useState<number>();
+
   function handleNav() {
     if (isMobile) {
       setOpenMobile(false);
-    } else {
-      if (!collapsed) toggleSidebar();
     }
   }
 
@@ -80,12 +86,16 @@ export function AppSidebar() {
                     }}
                     className={
                       activeView === "search"
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground flex items-center justify-between"
                         : ""
                     }
+                    disabled
                   >
-                    <Search className="h-4 w-4" />
-                    {!collapsed && <span>Pesquisar</span>}
+                    <div className="flex gap-2">
+                      <Search className="h-4 w-4" />
+                      {!collapsed && <span>Pesquisar (em construção)</span>}
+                    </div>
+                    <Hammer />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -149,10 +159,16 @@ export function AppSidebar() {
                       <SidebarMenuItem>
                         <SidebarMenuButton
                           onClick={() => setFolderDialogOpen(true)}
-                          className="text-muted-foreground hover:text-foreground"
+                          className="flex justify-between text-muted-foreground hover:text-foreground"
+                          disabled
                         >
-                          <Plus className="h-4 w-4" />
-                          <span>Nova Pasta</span>
+                          <div className="flex items-start gap-2">
+                            <Plus className="h-4 w-4" />
+                            <span>Nova Pasta (em construção)</span>
+                          </div>
+                          <div className="flex">
+                            <Hammer className="h-4 w-4" />
+                          </div>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     )}
@@ -178,21 +194,27 @@ export function AppSidebar() {
               <CollapsibleContent>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {/* {groups.map((group) => (
-                      <SidebarMenuItem key={group.id}>
-                        <SidebarMenuButton
-                          onClick={() => setActiveGroup(group.id)}
-                          className={
-                            activeGroupId === group.id
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : ""
-                          }
-                        >
-                          <Users className="h-4 w-4" />
-                          {!collapsed && <span>{group.name}</span>}
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))} */}
+                    {groups.map((group) => (
+                      <NavLink
+                        to={`/groups/${group.id}/materials`}
+                        onClick={handleNav}
+                        key={group.id}
+                      >
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            onClick={() => setActiveGroupId(group.id)}
+                            className={
+                              activeGroup === group.id
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                : ""
+                            }
+                          >
+                            <Users className="h-4 w-4" />
+                            {!collapsed && <span>{group.name}</span>}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      </NavLink>
+                    ))}
 
                     {!collapsed && (
                       <SidebarMenuItem>
@@ -220,12 +242,16 @@ export function AppSidebar() {
                     onClick={() => setActiveView("forum")}
                     className={
                       activeView === "forum"
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : ""
+                        ? "bg-sidebar-accent flex justify-between w-full text-gray-400"
+                        : "" + "flex justify-between w-full text-gray-400"
                     }
+                    disabled
                   >
-                    <MessageSquare className="h-4 w-4" />
-                    {!collapsed && <span>Fórum</span>}
+                    <div className="flex gap-2 items-center">
+                      <MessageSquare className="h-4 w-4" />
+                      {!collapsed && <span>Fórum (em construção)</span>}
+                    </div>
+                    <Hammer className="h-4 w-4" />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

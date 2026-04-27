@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { act, useEffect } from "react";
+import {
+  Form,
+  useActionData,
+  useFetcher,
+  useNavigation,
+  type ActionFunctionArgs,
+} from "react-router";
+import { createGroup } from "~/services/groups";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from "../components/ui/dialog";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+import type { ActionData } from "~/types";
+import { useActionToast } from "~/hooks/useActionToast";
+import { useSidebar } from "./ui/sidebar";
 
 interface Props {
   open: boolean;
@@ -17,51 +28,41 @@ interface Props {
 }
 
 export function CreateGroupDialog({ open, onOpenChange }: Props) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const navigation = useNavigation();
+  const sidebar = useSidebar();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
+  const isSubmitting =
+    navigation.state === "submitting" && navigation.formAction === "/groups";
 
-    // addGroup({
-    //   id: crypto.randomUUID(),
-    //   name: name.trim(),
-    //   description: description.trim() || undefined,
-    //   memberCount: 1,
-    //   role: 'owner',
-    //   createdAt: new Date().toISOString(),
-    // });
-
-    setName("");
-    setDescription("");
-    onOpenChange(false);
-  };
+  useEffect(() => {
+    if (navigation.state === "idle") {
+      onOpenChange(false);
+      sidebar.setOpenMobile(false);
+    }
+  }, [navigation.state, onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Group</DialogTitle>
+          <DialogTitle>Criar Grupo</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <Form method="post" action="/groups" className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="group-name">Name</Label>
+            <Label htmlFor="group-name">Nome</Label>
             <Input
               id="group-name"
-              placeholder="Study group name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Nome do grupo de estudo"
+              name="name"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="group-desc">Description (optional)</Label>
+            <Label htmlFor="group-desc">Descrição (opcional)</Label>
             <Textarea
               id="group-desc"
-              placeholder="What is this group about?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Esse grupo é sobre o que?"
+              name="description"
             />
           </div>
           <DialogFooter>
@@ -70,11 +71,13 @@ export function CreateGroupDialog({ open, onOpenChange }: Props) {
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              Cancelar
             </Button>
-            <Button type="submit">Create</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Criando..." : "Criar"}
+            </Button>
           </DialogFooter>
-        </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

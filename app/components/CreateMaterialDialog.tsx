@@ -11,14 +11,14 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FLAG_COLORS, type FlagColor, type MaterialType } from "~/types";
 import { Form } from "react-router";
 
 type Props = {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  groupId: number;
+  groupId?: number;
   materialTypes: MaterialType[];
 };
 
@@ -34,6 +34,10 @@ export default function CreateMaterialDialog({
   const [selectedTypeId, setSelectedTypeId] = useState<number>(
     materialTypes[0]?.id,
   );
+
+  useEffect(() => {
+    setTags([]);
+  }, [open]);
 
   const handleAddTag = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && tagInput.trim()) {
@@ -57,6 +61,7 @@ export default function CreateMaterialDialog({
 
         <Form
           method="post"
+          action={groupId ? `/groups/${groupId}/materials` : "/materials"}
           className="flex flex-col gap-4"
           onSubmit={() => onOpenChange(false)}
         >
@@ -72,17 +77,20 @@ export default function CreateMaterialDialog({
           <div className="flex flex-col gap-1.5">
             <Label>Tipo</Label>
             <div className="flex flex-wrap gap-2">
-              {materialTypes.map((t) => (
-                <Button
-                  key={t.id}
-                  type="button"
-                  variant={selectedTypeId === t.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedTypeId(t.id)}
-                >
-                  {t.description}
-                </Button>
-              ))}
+              {materialTypes.map((t) => {
+                return (
+                  <Button
+                    key={t.id}
+                    type="button"
+                    variant={selectedTypeId === t.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedTypeId(t.id)}
+                    disabled={t.id === 2}
+                  >
+                    {t.id === 1 ? "Anotação" : "Arquivo"}
+                  </Button>
+                );
+              })}
             </div>
           </div>
 
@@ -130,7 +138,7 @@ export default function CreateMaterialDialog({
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          {/* <div className="flex flex-col gap-1.5">
             <Label>Flag</Label>
             <div className="flex flex-wrap gap-2">
               {(Object.entries(FLAG_COLORS) as [FlagColor, string][]).map(
@@ -151,7 +159,7 @@ export default function CreateMaterialDialog({
                 ),
               )}
             </div>
-          </div>
+          </div> */}
 
           <div className="flex items-center gap-2">
             <Input

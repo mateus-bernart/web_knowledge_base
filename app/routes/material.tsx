@@ -32,6 +32,7 @@ type Tag = { id: number; description: string };
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const api = apiClient(request);
+
   const res = await api(`/materials/${params.materialId}`);
 
   if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
@@ -119,9 +120,14 @@ export default function Material({ loaderData }: Route.ComponentProps) {
       { _method: "ADD_TAG", description },
       { method: "post", action: `/materials/${material.id}` },
     );
-    setTags((prev) => [...prev, { id: Date.now(), description }]);
     setTagInput("");
   }
+
+  useEffect(() => {
+    if (addTagFetcher.state === "idle" && addTagFetcher.data?.success) {
+      setTags(material.tags);
+    }
+  }, [addTagFetcher.state, addTagFetcher.data, material.tags]);
 
   function removeTag(id: number) {
     removeTagFetcher.submit(
@@ -140,7 +146,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Materials
+          Materiais
         </Link>
 
         <div className="flex gap-2">

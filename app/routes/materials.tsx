@@ -2,7 +2,9 @@ import {
   Link,
   useActionData,
   useFetcher,
+  useLoaderData,
   type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import type { Route } from "./+types/materials";
 import { apiClient } from "~/services/api";
@@ -11,7 +13,14 @@ import { Button } from "~/components/ui/button";
 import CreateMaterialDialog from "~/components/CreateMaterialDialog";
 import { useState } from "react";
 import { Input } from "~/components/ui/input";
-import { createMaterial, deleteMaterial } from "~/services/materials";
+import {
+  createGroupMaterial,
+  createMaterial,
+  deleteGroupMaterial,
+  deleteMaterial,
+  getMaterials,
+  getMaterialTypes,
+} from "~/services/materials";
 import type { Material, MaterialType } from "~/types";
 import { ApiError } from "~/errors";
 import { useActionToast } from "~/hooks/useActionToast";
@@ -28,37 +37,57 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const api = apiClient(request);
+  const groupId = Number(params.groupId);
 
-  //extrair para funcao getData() ou algo assim
-  const [materialsRes, typesRes] = await Promise.all([
-    api("/materials"),
-    api("/material-types"),
-  ]);
+  try {
+    const [materials, types] = await Promise.all([
+      getMaterials(api, groupId),
+      getMaterialTypes(api),
+    ]);
 
-  //return erro caso !res.ok
+    return {
+      materials: Array.isArray(materials) ? materials : [],
+      materialTypes: Array.isArray(types) ? types : [],
+      groupId,
+    };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.log(error);
+      return { success: false, message: error.message, action: error.action };
+    }
 
-  const materials = await materialsRes.json();
-  const types = await typesRes.json();
-
-  return {
-    materials: Array.isArray(materials) ? materials : [],
-    materialTypes: Array.isArray(types) ? types : [],
-  };
+    return {
+      success: false,
+      message: "Erro inesperado",
+      action: "Tente novamente ou contate o suporte.",
+      status: 500,
+    };
+  }
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const method = (formData.get("_method") as string) ?? request.method;
+  const groupId = Number(params.groupId);
+  const materialId = Number(formData.get("id"));
+
   let response;
 
   try {
     if (method === "POST") {
-      response = await createMaterial(request, formData);
+      if (groupId) {
+        response = await createGroupMaterial(request, formData, groupId);
+      } else {
+        response = await createMaterial(request, formData);
+      }
     } else if (method === "DELETE") {
-      const id = Number(formData.get("id"));
-      response = await deleteMaterial(request, id);
+      if (groupId) {
+        response = await deleteGroupMaterial(request, materialId, groupId);
+      } else {
+        response = await deleteMaterial(request, materialId);
+      }
     }
     return response;
   } catch (error) {
@@ -77,10 +106,20 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Materials({ loaderData }: Route.ComponentProps) {
+  if (!loaderData.materials) {
+    return (
+      <div>
+        <p>{loaderData.message}</p>
+        <p>{loaderData.action}</p>
+      </div>
+    );
+  }
+
   return (
     <MaterialsView
       materials={loaderData.materials}
       materialTypes={loaderData.materialTypes}
+      groupId={loaderData?.groupId}
     />
   );
 }
@@ -88,9 +127,11 @@ export default function Materials({ loaderData }: Route.ComponentProps) {
 export function MaterialsView({
   materials,
   materialTypes,
+  groupId,
 }: {
   materials: Material[];
   materialTypes: MaterialType[];
+  groupId?: number;
 }) {
   const [localSearch, setLocalSearch] = useState("");
   const [createOpen, setCreateOpen] = useState<boolean>(false);
@@ -99,8 +140,6 @@ export function MaterialsView({
   const fetcher = useFetcher();
 
   useActionToast(actionData, fetcher.data);
-
-  const groupId = 1;
 
   return (
     <div className="overflow-x-hidden w-full">
@@ -202,24 +241,26 @@ export function MaterialsView({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Deletar material?</AlertDialogTitle>
+                <AlertDialogTitle>Excluir material?</AlertDialogTitle>
                 <AlertDialogDescription>
                   Essa ação não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="flex items-center">
-                <AlertDialogCancel className="w-full">
-                  Cancelar
-                </AlertDialogCancel>
                 <fetcher.Form
                   method="POST"
-                  action="/materials"
-                  className="w-full"
+                  action={
+                    groupId ? `/groups/${groupId}/materials` : `/materials`
+                  }
+                  className="flex w-full gap-2"
                 >
                   <input type="hidden" name="id" value={material.id} />
                   <input type="hidden" name="_method" value="DELETE" />
-                  <AlertDialogAction type="submit" className="w-full">
-                    Deletar
+                  <AlertDialogCancel className="flex-1 w-full">
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction type="submit" className="flex-1 w-full">
+                    Excluir
                   </AlertDialogAction>
                 </fetcher.Form>
               </AlertDialogFooter>

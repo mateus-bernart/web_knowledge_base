@@ -17,5 +17,14 @@ export default [
       index("routes/materials.tsx"),
       route(":materialId", "routes/material.tsx"),
     ]),
+    ...prefix("groups", [
+      index("routes/groups.tsx"),
+      route(":groupId", "routes/group.tsx", [
+        ...prefix("materials", [
+          index("routes/group-materials.tsx"),
+          route(":materialId", "routes/group-material.tsx"),
+        ]),
+      ]),
+    ]),
   ]),
 ] satisfies RouteConfig;

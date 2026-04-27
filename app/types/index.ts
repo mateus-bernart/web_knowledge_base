@@ -1,3 +1,20 @@
+export type Toast =
+  | {
+      success: boolean;
+      message?: string;
+      action?: string;
+    }
+  | undefined;
+
+export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+export type ActionData = {
+  success: boolean;
+  message: string;
+  action: string;
+  method: Method;
+};
+
 export type User = {
   username: string;
   email: string;
@@ -45,4 +62,10 @@ type Tag = {
 type Visibility = {
   id: number;
   description: "public" | "private";
+};
+
+export type Group = {
+  id: number;
+  name: string;
+  description: string;
 };
