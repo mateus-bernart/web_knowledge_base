@@ -1,12 +1,9 @@
-// context/AuthContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { getUser } from "~/services/auth";
 import type { User } from "~/types";
 
 type AuthContextType = {
   user: User;
-  logout: () => void;
 };
 
 const url = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
@@ -15,7 +12,6 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>({} as User);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const hasToken = document.cookie.includes("token=");
@@ -30,22 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadData();
   }, []);
 
-  const logout = async () => {
-    const res = await fetch(`${url}/api/logout`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    setUser({} as User);
-    navigate("/login");
-  };
-
   return (
-    <AuthContext.Provider value={{ user, logout }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
   );
 }
 

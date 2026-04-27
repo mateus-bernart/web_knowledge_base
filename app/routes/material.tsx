@@ -224,7 +224,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
             className="min-h-40 resize-y text-sm leading-relaxed"
           />
         ) : (
-          <div className="bg-muted rounded-md p-4 text-sm leading-relaxed whitespace-pre-wrap break-words">
+          <div className="bg-muted rounded-md p-4 text-sm leading-relaxed whitespace-pre-wrap wrap-break-words">
             {content}
           </div>
         )}

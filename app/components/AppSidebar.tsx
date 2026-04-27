@@ -34,7 +34,7 @@ import { CreateGroupDialog } from "./CreateGroupDialog";
 import { CreateFolderDialog } from "./CreateFolderDialog";
 import { useView } from "~/context/viewContext";
 import { useAuth } from "~/context/authContext";
-import { NavLink } from "react-router";
+import { Form, NavLink } from "react-router";
 import type { Group } from "~/types";
 
 type SidebarProps = {
@@ -47,7 +47,7 @@ export function AppSidebar({ groups }: SidebarProps) {
   const collapsed = state === "collapsed";
   const { activeView, setActiveView, activeFolderId, setActiveFolderId } =
     useView();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -265,14 +265,11 @@ export function AppSidebar({ groups }: SidebarProps) {
               <span className="text-sm text-muted-foreground truncate">
                 {user.username}
               </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={logout}
-                className="h-8 w-8"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              <Form method="post" action="/logout">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </Form>
             </div>
           )}
         </SidebarFooter>
