@@ -9,6 +9,8 @@ type AuthContextType = {
   logout: () => void;
 };
 
+const url = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -29,9 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = async () => {
-    const res = await fetch("http://localhost:8000/api/logout", {
+    const res = await fetch(`${url}/api/logout`, {
       method: "POST",
-      headers: {},
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
     setUser({} as User);
     navigate("/login");
