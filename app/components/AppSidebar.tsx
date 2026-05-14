@@ -87,15 +87,17 @@ export function AppSidebar({ groups }: SidebarProps) {
                     className={
                       activeView === "search"
                         ? "bg-sidebar-accent text-sidebar-accent-foreground flex items-center justify-between"
-                        : ""
+                        : "flex items-center justify-between"
                     }
                     disabled
                   >
-                    <div className="flex gap-2">
+                    <div className="flex items-start gap-2">
                       <Search className="h-4 w-4" />
-                      {!collapsed && <span>Pesquisar (em construção)</span>}
+                      {!collapsed && <span>Pesquisar </span>}
                     </div>
-                    <Hammer />
+                    <div className="flex">
+                      <Hammer />
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -164,7 +166,7 @@ export function AppSidebar({ groups }: SidebarProps) {
                         >
                           <div className="flex items-start gap-2">
                             <Plus className="h-4 w-4" />
-                            <span>Nova Pasta (em construção)</span>
+                            <span>Nova Pasta </span>
                           </div>
                           <div className="flex">
                             <Hammer className="h-4 w-4" />
@@ -249,7 +251,7 @@ export function AppSidebar({ groups }: SidebarProps) {
                   >
                     <div className="flex gap-2 items-center">
                       <MessageSquare className="h-4 w-4" />
-                      {!collapsed && <span>Fórum (em construção)</span>}
+                      {!collapsed && <span>Fórum </span>}
                     </div>
                     <Hammer className="h-4 w-4" />
                   </SidebarMenuButton>
