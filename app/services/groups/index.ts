@@ -50,6 +50,29 @@ export async function deleteGroup(request: Request, id: number) {
   };
 }
 
+export async function addUserToGroup(
+  request: Request,
+  formData: FormData,
+  groupId: number,
+) {
+  const api = apiClient(request);
+  const res = await api(`/groups/${groupId}/addUser`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: Number(formData.get("user_id")),
+      role: formData.get("role"),
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new ApiError(data.message ?? "Erro ao adicionar usuário.", res.status);
+  }
+
+  return { success: true, message: "Usuário adicionado ao grupo!" };
+}
+
 export async function updateGroup(
   request: Request,
   formData: FormData,

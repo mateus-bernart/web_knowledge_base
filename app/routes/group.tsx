@@ -7,8 +7,8 @@ import {
 } from "react-router";
 import { apiClient } from "~/services/api";
 import type { Route } from "./+types/group";
-import { Delete, Pencil, Trash, Trash2 } from "lucide-react";
-import { deleteGroup, updateGroup } from "~/services/groups";
+import { Delete, Pencil, Trash, Trash2, UserPlus } from "lucide-react";
+import { addUserToGroup, deleteGroup, updateGroup } from "~/services/groups";
 import { useActionToast } from "~/hooks/useActionToast";
 import {
   AlertDialog,
@@ -24,9 +24,10 @@ import {
 import { Button } from "~/components/ui/button";
 import { ApiError } from "~/errors";
 import { useEffect, useState } from "react";
-import type { ActionData, Group, Method, Toast } from "~/types";
+import type { ActionData, Group, GroupMember } from "~/types";
 import { Input } from "~/components/ui/input";
 import { commitSession, getSession } from "~/sessions";
+import { AddUserToGroupDialog } from "~/components/AddUserToGroupDialog";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -48,16 +49,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const method = (formData.get("_method") as Method) ?? request.method;
+  const method = (formData.get("_method") as string) ?? request.method;
   const id = Number(params.groupId);
   let response;
 
   try {
     if (method === "DELETE") {
       response = await deleteGroup(request, id);
-    }
-    if (method === "PATCH") {
+    } else if (method === "PATCH") {
       response = await updateGroup(request, formData, id);
+    } else if (method === "ADD_USER") {
+      response = await addUserToGroup(request, formData, id);
     }
 
     return response;
@@ -82,6 +84,7 @@ export default function Group() {
   const [editing, setEditing] = useState<boolean>();
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description);
+  const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
 
   const fetcher = useFetcher<ActionData>();
   useActionToast(fetcher.data, toast);
@@ -116,6 +119,12 @@ export default function Group() {
 
   return (
     <div className="flex flex-col gap-3" key={group.id}>
+      <AddUserToGroupDialog
+        open={addUserOpen}
+        onOpenChange={setAddUserOpen}
+        groupId={group.id}
+        members={group.members ?? []}
+      />
       <div className="flex justify-between items-center gap-2">
         {editing ? (
           <Input
@@ -127,6 +136,9 @@ export default function Group() {
           <h1>{group.name}</h1>
         )}
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setAddUserOpen(true)}>
+            <UserPlus></UserPlus>
+          </Button>
           {editing ? (
             <>
               <Button
@@ -198,6 +210,31 @@ export default function Group() {
           <h3>{group.description}</h3>
         )}
       </div>
+      {(group.members ?? []).length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Membros
+          </p>
+          <div className="rounded-md border divide-y text-sm">
+            {(group.members as GroupMember[]).map((member) => (
+              <div
+                key={member.id}
+                className="flex items-center justify-between px-3 py-2"
+              >
+                <div>
+                  <span className="font-medium">{member.username}</span>
+                  <span className="text-muted-foreground ml-2 text-xs">
+                    {member.email}
+                  </span>
+                </div>
+                <span className="text-xs rounded-full px-2 py-0.5 bg-muted text-muted-foreground capitalize">
+                  {member.pivot.role === "admin" ? "Admin" : "Estudante"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <Outlet />
     </div>
   );

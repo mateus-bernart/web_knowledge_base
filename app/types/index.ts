@@ -64,8 +64,17 @@ type Visibility = {
   description: "public" | "private";
 };
 
+export type GroupMember = {
+  id: number;
+  username: string;
+  name: string;
+  email: string;
+  pivot: { role: "admin" | "student" };
+};
+
 export type Group = {
   id: number;
   name: string;
   description: string;
+  members?: GroupMember[];
 };
