@@ -12,7 +12,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { useEffect, useState } from "react";
-import { FLAG_COLORS, type FlagColor, type MaterialType } from "~/types";
+import { type FlagColor, type MaterialType } from "~/types";
 import { Form } from "react-router";
 
 type Props = {
@@ -30,7 +30,7 @@ export default function CreateMaterialDialog({
 }: Props) {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [flagColor, setFlagColor] = useState<FlagColor | undefined>();
+  const [flagColor] = useState<FlagColor | undefined>();
   const [selectedTypeId, setSelectedTypeId] = useState<number>(
     materialTypes[0]?.id,
   );
@@ -128,10 +128,13 @@ export default function CreateMaterialDialog({
                 {tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="gap-1">
                     {tag}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
+                    <button
+                      type="button"
                       onClick={() => setTags(tags.filter((t) => t !== tag))}
-                    />
+                      className="cursor-pointer"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
