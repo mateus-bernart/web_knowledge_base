@@ -478,6 +478,11 @@
   resolved "https://registry.yarnpkg.com/@fontsource-variable/lora/-/lora-5.2.8.tgz#911812b1628dd7ba8aba33e38c66e7ef4284deab"
   integrity sha512-cxjTJ9BbOWIzusewR4UMBLVePvTSWV6dtNaNsCkF/oKoyA68fJGWfaYCILOOP1BObE4dmjfZ3xo6m9hdHhtYhg==
 
+"@fontsource-variable/raleway@^5.2.8":
+  version "5.2.8"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/raleway/-/raleway-5.2.8.tgz#88219fff3c6c426e3af7cf2eafe6bfcc89124918"
+  integrity sha512-PahqGI7bkz4a80m91Jt65DRsuFQmRip5vGDbI9sChVSKjLrdDfXbeGIwnTPi/ZVCOoQrbLnqzBOLQpLohnz+WA==
+
 "@hono/node-server@^1.19.9":
   version "1.19.13"
   resolved "https://registry.yarnpkg.com/@hono/node-server/-/node-server-1.19.13.tgz#4838c766a1237253d4dde3281cf7d5c65186fd32"
@@ -3110,10 +3115,10 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-lucide-react@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.8.0.tgz#107f8d8df0914dc5f8d037b948159d6cce86b9f5"
-  integrity sha512-WuvlsjngSk7TnTBJ1hsCy3ql9V9VOdcPkd3PKcSmM34vJD8KG6molxz7m7zbYFgICwsanQWmJ13JlYs4Zp7Arw==
+lucide-react@^1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.16.0.tgz#8c19a757982ed28e28afd0da9a950d3152e4b7e5"
+  integrity sha512-dYwyPzb4MEKpGUmNYk3WKWPnMrHs3FKM+q94kAnJrcDIqqn1hq2xY8scaS2ovsOCM5D51ey2gaRG3PBb1vgoYQ==
 
 magic-string@^0.30.21:
   version "0.30.21"
@@ -3956,10 +3961,10 @@ setprototypeof@1.2.0, setprototypeof@~1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-shadcn@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/shadcn/-/shadcn-4.2.0.tgz#d8aff21cb4d1d3e6753945e2087df5a0aa3f15a3"
-  integrity sha512-ZDuV340itidaUd4Gi1BxQX+Y7Ush6BHp6URZBM2RyxUUBZ6yFtOWIr4nVY+Ro+YRSpo82v7JrsmtcU5xoBCMJQ==
+shadcn@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/shadcn/-/shadcn-4.7.0.tgz#0f5c848ae394de337c762cfcd39b8c44bd2d3937"
+  integrity sha512-70fwnesNrY1GgeD7Kdzn+3SsYeyfibm8immsA5L68+OusoPTvYF01oWExl8/latKpMpvVXcbgdbbE6VFBJQ38w==
   dependencies:
     "@babel/core" "^7.28.0"
     "@babel/parser" "^7.28.0"
@@ -4162,10 +4167,15 @@ tagged-tag@^1.0.0:
   resolved "https://registry.yarnpkg.com/tagged-tag/-/tagged-tag-1.0.0.tgz#a0b5917c2864cba54841495abfa3f6b13edcf4d6"
   integrity sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==
 
-tailwind-merge@^3.0.1, tailwind-merge@^3.5.0:
+tailwind-merge@^3.0.1:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-3.5.0.tgz#06502f4496ba15151445d97d916a26564d50d1ca"
   integrity sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==
+
+tailwind-merge@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-3.6.0.tgz#88d83242d1dd7bc847223f73dcf210dd1f2ee11c"
+  integrity sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w==
 
 tailwindcss@4.2.2, tailwindcss@^4.2.2:
   version "4.2.2"
