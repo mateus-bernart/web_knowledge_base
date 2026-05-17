@@ -281,7 +281,7 @@ export function MaterialsView({
                       <Badge
                         key={tag.id}
                         variant="outline"
-                        className="text-[10px] px-1.5 py-0 shrink-0"
+                        className="px-1.5 py-0 shrink-0"
                       >
                         {tag.description}
                       </Badge>
