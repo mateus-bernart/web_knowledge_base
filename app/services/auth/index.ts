@@ -21,7 +21,8 @@ export async function loginUser(
 }
 
 export async function getUser() {
-  const res = await fetch("http://localhost:8000/api/user", {
+  const url = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
+  const res = await fetch(`${url}/user`, {
     credentials: "include",
   });
 

@@ -13,11 +13,17 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const api = apiClient(request);
 
-  const [groupsRes] = await Promise.all([api("/groups")]);
+  const [groupsRes, userRes] = await Promise.all([api("/groups"), api("/user")]);
 
-  const groups = await groupsRes.json();
+  if (userRes.status === 401) {
+    return redirect("/login", {
+      headers: { "Set-Cookie": "token=; Path=/; HttpOnly; Max-Age=0" },
+    });
+  }
 
-  return { groups: Array.isArray(groups) ? groups : [] };
+  const [groups, user] = await Promise.all([groupsRes.json(), userRes.json()]);
+
+  return { groups: Array.isArray(groups) ? groups : [], user };
 }
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
@@ -27,7 +33,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <AppSidebar groups={loaderData.groups} />
+        <AppSidebar groups={loaderData.groups} user={loaderData.user} />
         <div className="flex-1 flex flex-col">
           <header className="h-12 flex items-center border-b border-border px-2">
             <SidebarTrigger />

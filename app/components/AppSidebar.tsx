@@ -7,7 +7,6 @@ import {
   Plus,
   ChevronRight,
   LogOut,
-  Building,
   Hammer,
 } from "lucide-react";
 import {
@@ -28,26 +27,34 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../components/ui/collapsible";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 import { Button } from "../components/ui/button";
 import { useState } from "react";
 import { CreateGroupDialog } from "./CreateGroupDialog";
 import { CreateFolderDialog } from "./CreateFolderDialog";
 import { useView } from "~/context/viewContext";
-import { useAuth } from "~/context/authContext";
 import { Form, NavLink } from "react-router";
-import type { Group } from "~/types";
+import type { Group, User } from "~/types";
 
 type SidebarProps = {
   groups: Group[];
+  user: User;
 };
 
-export function AppSidebar({ groups }: SidebarProps) {
-  const { state, setOpenMobile, isMobile, setOpen, toggleSidebar } =
-    useSidebar();
+export function AppSidebar({ groups, user }: SidebarProps) {
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
-  const { activeView, setActiveView, activeFolderId, setActiveFolderId } =
-    useView();
-  const { user } = useAuth();
+  const { activeView, setActiveView, activeFolderId } = useView();
 
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -240,21 +247,12 @@ export function AppSidebar({ groups }: SidebarProps) {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => setActiveView("forum")}
-                    className={
-                      activeView === "forum"
-                        ? "bg-sidebar-accent flex justify-between w-full text-gray-400"
-                        : "" + "flex justify-between w-full text-gray-400"
-                    }
-                    disabled
-                  >
-                    <div className="flex gap-2 items-center">
+                  <NavLink to="/forum" onClick={handleNav}>
+                    <SidebarMenuButton tooltip="Fórum">
                       <MessageSquare className="h-4 w-4" />
-                      {!collapsed && <span>Fórum </span>}
-                    </div>
-                    <Hammer className="h-4 w-4" />
-                  </SidebarMenuButton>
+                      {!collapsed && <span>Fórum</span>}
+                    </SidebarMenuButton>
+                  </NavLink>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
@@ -262,18 +260,45 @@ export function AppSidebar({ groups }: SidebarProps) {
         </SidebarContent>
 
         <SidebarFooter className="p-3">
-          {!collapsed && user && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground truncate">
-                {user.username}
-              </span>
-              <Form method="post" action="/logout">
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </Form>
+          <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between gap-2"}`}>
+            <div className={`flex items-center ${collapsed ? "" : "gap-2 min-w-0"}`}>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold uppercase">
+                {user?.username?.[0] ?? "?"}
+              </div>
+              {!collapsed && (
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-none truncate">{user?.username}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+              )}
             </div>
-          )}
+
+            {!collapsed && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent size="sm">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Você será desconectado e redirecionado para a página de login.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <Form method="post" action="/logout">
+                      <AlertDialogAction type="submit" variant="destructive" className="w-full">
+                        Sair
+                      </AlertDialogAction>
+                    </Form>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </SidebarFooter>
       </Sidebar>
 
