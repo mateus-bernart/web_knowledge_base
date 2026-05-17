@@ -42,7 +42,6 @@ import { Button } from "../components/ui/button";
 import { useState } from "react";
 import { CreateGroupDialog } from "./CreateGroupDialog";
 import { CreateFolderDialog } from "./CreateFolderDialog";
-import { useView } from "~/context/viewContext";
 import { Form, NavLink } from "react-router";
 import type { Group, User } from "~/types";
 
@@ -51,15 +50,14 @@ type SidebarProps = {
   user: User;
 };
 
+const activeClass = "bg-sidebar-accent text-sidebar-accent-foreground";
+
 export function AppSidebar({ groups, user }: SidebarProps) {
   const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
-  const { activeView, setActiveView, activeFolderId } = useView();
 
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-
-  const [activeGroup, setActiveGroupId] = useState<number>();
 
   function handleNav() {
     if (isMobile) {
@@ -74,7 +72,7 @@ export function AppSidebar({ groups, user }: SidebarProps) {
           <div className="flex items-center gap-2 text-primary">
             <BookOpen className="h-5 w-5 shrink-0" />
             {!collapsed && (
-              <span className="font-bold text-lg">
+              <span className="font-heading font-bold text-base leading-tight">
                 Base de conhecimento logosófico
               </span>
             )}
@@ -82,29 +80,20 @@ export function AppSidebar({ groups, user }: SidebarProps) {
         </SidebarHeader>
 
         <SidebarContent>
-          {/* Search */}
+          {/* Search — under construction */}
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => {
-                      setActiveView("search");
-                    }}
-                    className={
-                      activeView === "search"
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground flex items-center justify-between"
-                        : "flex items-center justify-between"
-                    }
+                    className="flex items-center justify-between"
                     disabled
                   >
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2">
                       <Search className="h-4 w-4" />
-                      {!collapsed && <span>Pesquisar </span>}
+                      {!collapsed && <span>Pesquisar</span>}
                     </div>
-                    <div className="flex">
-                      <Hammer />
-                    </div>
+                    {!collapsed && <Hammer className="h-4 w-4 shrink-0" />}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -115,7 +104,7 @@ export function AppSidebar({ groups, user }: SidebarProps) {
           <SidebarGroup>
             <Collapsible defaultOpen>
               <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded-md px-2">
+                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 px-2">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">
                     Pessoal
                   </span>
@@ -128,41 +117,18 @@ export function AppSidebar({ groups, user }: SidebarProps) {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <NavLink to={"/materials"} onClick={handleNav}>
-                        <SidebarMenuButton
-                          className={
-                            activeView === "personal" && !activeFolderId
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : ""
-                          }
-                          tooltip={"Todos os materiais"}
-                        >
-                          <FileText className="h-4 w-4" />
-                          {!collapsed && <span>Todos os materiais</span>}
-                        </SidebarMenuButton>
+                      <NavLink to="/materials" end onClick={handleNav}>
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            className={isActive ? activeClass : ""}
+                            tooltip="Todos os materiais"
+                          >
+                            <FileText className="h-4 w-4" />
+                            {!collapsed && <span>Todos os materiais</span>}
+                          </SidebarMenuButton>
+                        )}
                       </NavLink>
                     </SidebarMenuItem>
-
-                    {/* {folders
-                      .filter((f) => !f.parentId)
-                      .map((folder) => (
-                        <SidebarMenuItem key={folder.id}>
-                          <SidebarMenuButton
-                            onClick={() => {
-                              setActiveView("personal");
-                              setActiveFolder(folder.id);
-                            }}
-                            className={
-                              activeFolderId === folder.id
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                : ""
-                            }
-                          >
-                            <FolderOpen className="h-4 w-4" />
-                            {!collapsed && <span>{folder.name}</span>}
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))} */}
 
                     {!collapsed && (
                       <SidebarMenuItem>
@@ -171,13 +137,11 @@ export function AppSidebar({ groups, user }: SidebarProps) {
                           className="flex justify-between text-muted-foreground hover:text-foreground"
                           disabled
                         >
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-center gap-2">
                             <Plus className="h-4 w-4" />
-                            <span>Nova Pasta </span>
+                            <span>Nova Pasta</span>
                           </div>
-                          <div className="flex">
-                            <Hammer className="h-4 w-4" />
-                          </div>
+                          <Hammer className="h-4 w-4" />
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     )}
@@ -191,7 +155,7 @@ export function AppSidebar({ groups, user }: SidebarProps) {
           <SidebarGroup>
             <Collapsible defaultOpen>
               <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded-md px-2">
+                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 px-2">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">
                     Grupos
                   </span>
@@ -204,25 +168,21 @@ export function AppSidebar({ groups, user }: SidebarProps) {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {groups.map((group) => (
-                      <NavLink
-                        to={`/groups/${group.id}/materials`}
-                        onClick={handleNav}
-                        key={group.id}
-                      >
-                        <SidebarMenuItem>
-                          <SidebarMenuButton
-                            onClick={() => setActiveGroupId(group.id)}
-                            className={
-                              activeGroup === group.id
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                : ""
-                            }
-                          >
-                            <Users className="h-4 w-4" />
-                            {!collapsed && <span>{group.name}</span>}
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      </NavLink>
+                      <SidebarMenuItem key={group.id}>
+                        <NavLink
+                          to={`/groups/${group.id}/materials`}
+                          onClick={handleNav}
+                        >
+                          {({ isActive }) => (
+                            <SidebarMenuButton
+                              className={isActive ? activeClass : ""}
+                            >
+                              <Users className="h-4 w-4" />
+                              {!collapsed && <span>{group.name}</span>}
+                            </SidebarMenuButton>
+                          )}
+                        </NavLink>
+                      </SidebarMenuItem>
                     ))}
 
                     {!collapsed && (
@@ -248,10 +208,15 @@ export function AppSidebar({ groups, user }: SidebarProps) {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <NavLink to="/forum" onClick={handleNav}>
-                    <SidebarMenuButton tooltip="Fórum">
-                      <MessageSquare className="h-4 w-4" />
-                      {!collapsed && <span>Fórum</span>}
-                    </SidebarMenuButton>
+                    {({ isActive }) => (
+                      <SidebarMenuButton
+                        className={isActive ? activeClass : ""}
+                        tooltip="Fórum"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        {!collapsed && <span>Fórum</span>}
+                      </SidebarMenuButton>
+                    )}
                   </NavLink>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -260,15 +225,23 @@ export function AppSidebar({ groups, user }: SidebarProps) {
         </SidebarContent>
 
         <SidebarFooter className="p-3">
-          <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between gap-2"}`}>
-            <div className={`flex items-center ${collapsed ? "" : "gap-2 min-w-0"}`}>
+          <div
+            className={`flex items-center ${collapsed ? "justify-center" : "justify-between gap-2"}`}
+          >
+            <div
+              className={`flex items-center ${collapsed ? "" : "gap-2 min-w-0"}`}
+            >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold uppercase">
                 {user?.username?.[0] ?? "?"}
               </div>
               {!collapsed && (
                 <div className="min-w-0">
-                  <p className="text-sm font-medium leading-none truncate">{user?.username}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  <p className="text-sm font-medium leading-none truncate">
+                    {user?.username}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
                 </div>
               )}
             </div>
@@ -284,13 +257,18 @@ export function AppSidebar({ groups, user }: SidebarProps) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Você será desconectado e redirecionado para a página de login.
+                      Você será desconectado e redirecionado para a página de
+                      login.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <Form method="post" action="/logout">
-                      <AlertDialogAction type="submit" variant="destructive" className="w-full">
+                      <AlertDialogAction
+                        type="submit"
+                        variant="destructive"
+                        className="w-full"
+                      >
                         Sair
                       </AlertDialogAction>
                     </Form>

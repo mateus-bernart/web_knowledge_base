@@ -24,7 +24,7 @@ import {
   deleteMaterialTag,
   updateMaterial,
 } from "~/services/materials";
-import { MATERIAL_TYPE_LABELS, type Material } from "~/types";
+import { MATERIAL_TYPE_LABELS, VISIBILITY_LABELS, type Material } from "~/types";
 
 type Tag = { id: number; description: string };
 
@@ -94,12 +94,14 @@ export function MaterialView({
   backPath,
   backLabel,
   showGroups = true,
+  showCreator = false,
 }: {
   material: Material;
   canEdit: boolean;
   backPath?: string;
   backLabel?: string;
   showGroups?: boolean;
+  showCreator?: boolean;
 }) {
   const contentFetcher = useFetcher();
   const addTagFetcher = useFetcher();
@@ -224,7 +226,7 @@ export function MaterialView({
             ) : (
               <Lock className="h-3.5 w-3.5" />
             )}
-            <span>{material.visibility.description}</span>
+            <span>{VISIBILITY_LABELS[material.visibility.description]}</span>
             <span>·</span>
             <span>
               {new Date(material.created_at).toLocaleDateString("pt-BR")}
@@ -321,6 +323,21 @@ export function MaterialView({
           </p>
         </div>
       </div>
+
+      {/* Creator */}
+      {showCreator && material.user && (
+        <div className="mt-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+            Criado por
+          </p>
+          <div className="bg-muted rounded-md p-3 text-sm">
+            <p className="font-medium">{material.user.name}</p>
+            <p className="text-muted-foreground text-xs mt-0.5">
+              {material.user.email}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Groups */}
       {showGroups && material.groups && material.groups.length > 0 && (

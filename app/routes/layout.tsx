@@ -34,14 +34,14 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar groups={loaderData.groups} user={loaderData.user} />
-        <div className="flex-1 flex flex-col">
-          <header className="h-12 flex items-center border-b border-border px-2">
+        <div className="flex-1 flex flex-col min-w-0">
+          <header className="h-12 flex items-center border-b border-border px-3 shrink-0">
             <SidebarTrigger />
           </header>
-          <main className="flex-1 p-4">
-            <div className="relative h-full overflow-hidden">
+          <main className="flex-1 p-6 overflow-y-auto">
+            <div className="relative max-w-3xl w-full">
               {isLoading && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+                <div className="fixed inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
                   <Loader2 className="animate-spin text-primary" size={28} />
                 </div>
               )}

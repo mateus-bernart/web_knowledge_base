@@ -48,6 +48,7 @@ export type Material = {
   tags: Tag[];
   material_type: MaterialType;
   groups?: { id: number; name: string }[];
+  user?: { name: string; email: string };
   created_at: string;
   updated_at: string;
 };

@@ -194,6 +194,11 @@ export function MaterialsView({
 
   return (
     <div className="overflow-x-hidden w-full">
+      {!groupId && (
+        <h1 className="font-heading text-xl font-semibold mb-5">
+          Meus materiais
+        </h1>
+      )}
       <CreateMaterialDialog
         open={createOpen}
         onOpenChange={setCreateOpen}

@@ -33,9 +33,11 @@ export default function Login({ actionData }: { actionData: ActionData }) {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-sm space-y-8 px-4">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 text-primary">
-            <BookOpen className="h-8 w-8" />
-            <span className="text-2xl font-bold">Base de conhecimento</span>
+          <div className="inline-flex items-center gap-2.5 text-primary">
+            <BookOpen className="h-7 w-7 shrink-0" />
+            <span className="font-heading text-2xl font-bold leading-tight">
+              Base de conhecimento
+            </span>
           </div>
           <p className="text-sm text-muted-foreground">
             Entre na base do conhecimento logosófico.

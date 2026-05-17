@@ -12,11 +12,6 @@
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-html,
-body {
-  @apply bg-white;
-}
-
 body {
   overflow-x: hidden;
   max-width: 100vw;
@@ -143,5 +138,11 @@ body {
   }
   html {
     @apply font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
   }
 }
