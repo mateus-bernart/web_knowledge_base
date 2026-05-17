@@ -53,6 +53,7 @@ export default function Login({ actionData }: { actionData: ActionData }) {
               placeholder="voce@exemplo.com"
               name="email"
               required
+              className="placeholder:text-black-800" 
             />
           </div>
           <div className="space-y-2">

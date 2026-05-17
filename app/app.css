@@ -89,7 +89,8 @@ body {
   --accent-foreground: oklch(0.473 0.137 46.201); /* ember */
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.935 0.022 72); /* golden-tinted border */
-  --input: oklch(0.935 0.022 72);
+  --input: oklch(62.006% 0.00007 271.152);
+  --placeholder: oklch(63.009% 0.00007 271.152);
   --ring: oklch(0.769 0.188 70.08); /* golden */
   --chart-1: oklch(0.879 0.169 91.605); /* sun-glow */
   --chart-2: oklch(0.769 0.188 70.08); /* golden */

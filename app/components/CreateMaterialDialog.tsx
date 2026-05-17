@@ -51,10 +51,7 @@ export default function CreateMaterialDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="w-full max-w-lg mx-auto p-4 sm:p-6 rounded-t-2xl sm:rounded-xl overflow-y-auto"
-        style={{ maxHeight: "calc(100dvh - 2rem)" }}
-      >
+      <DialogContent className="overflow-y-auto max-h-[calc(100dvh-4rem)]">
         <DialogHeader>
           <DialogTitle>Novo Material</DialogTitle>
         </DialogHeader>
@@ -176,18 +173,15 @@ export default function CreateMaterialDialog({
             </Label>
           </div>
 
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              className="w-full sm:w-auto"
               onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button type="submit" className="w-full sm:w-auto">
-              Criar
-            </Button>
+            <Button type="submit">Criar</Button>
           </DialogFooter>
         </Form>
       </DialogContent>

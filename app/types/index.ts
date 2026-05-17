@@ -105,4 +105,5 @@ export type Group = {
   description: string;
   members?: GroupMember[];
   current_user_role?: "admin" | "student";
+  current_user_id?: number;
 };

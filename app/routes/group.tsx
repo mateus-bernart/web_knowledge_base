@@ -32,7 +32,6 @@ import { Button } from "~/components/ui/button";
 import { ApiError } from "~/errors";
 import { useEffect, useState } from "react";
 import type { ActionData, Group, Toast } from "~/types";
-import { useAuth } from "~/context/authContext";
 import { Input } from "~/components/ui/input";
 import { commitSession, getSession } from "~/sessions";
 import { AddUserToGroupDialog } from "~/components/AddUserToGroupDialog";
@@ -92,7 +91,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function Group() {
   const { group, toast } = useLoaderData() as { group: Group; toast: Toast };
-  const { user: currentUser } = useAuth();
+
 
   const matches = useMatches();
   const isViewingMaterial = matches.some((m) => (m.params as Record<string, string>).materialId != null);
@@ -143,10 +142,16 @@ export default function Group() {
         groupId={group.id}
         members={group.members ?? []}
         canAdd={isAdmin}
-        currentUserId={currentUser?.id}
+        currentUserId={group.current_user_id}
         onRemoveMember={(userId) =>
           fetcher.submit(
             { _method: "REMOVE_MEMBER", user_id: String(userId) },
+            { method: "post", action: `/groups/${group.id}` },
+          )
+        }
+        onUpdateRole={(userId, role) =>
+          fetcher.submit(
+            { _method: "UPDATE_ROLE", user_id: String(userId), role },
             { method: "post", action: `/groups/${group.id}` },
           )
         }
