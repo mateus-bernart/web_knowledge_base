@@ -16,6 +16,7 @@ export type ActionData = {
 };
 
 export type User = {
+  id: number;
   username: string;
   email: string;
   token: string;
@@ -40,13 +41,27 @@ export type FlagColor =
 
 export type Material = {
   id: number;
+  user_id: number;
   title: string;
   content: string;
   visibility: Visibility;
   tags: Tag[];
   material_type: MaterialType;
+  groups?: { id: number; name: string }[];
   created_at: string;
   updated_at: string;
+};
+
+export const VISIBILITY_LABELS: Record<string, string> = {
+  public: "Público",
+  private: "Privado",
+};
+
+export const MATERIAL_TYPE_LABELS: Record<string, string> = {
+  note: "Anotação",
+  file: "Arquivo",
+  video: "Vídeo",
+  // add new types here, no logic changes needed
 };
 
 export type MaterialType = {
@@ -64,6 +79,17 @@ type Visibility = {
   description: "public" | "private";
 };
 
+export type ForumMaterial = {
+  id: number;
+  title: string;
+  content: string;
+  material_type: MaterialType;
+  visibility: Visibility;
+  created_at: string;
+  updated_at: string;
+  user: { name: string; email: string };
+};
+
 export type GroupMember = {
   id: number;
   username: string;
@@ -77,4 +103,5 @@ export type Group = {
   name: string;
   description: string;
   members?: GroupMember[];
+  current_user_role?: "admin" | "student";
 };

@@ -73,6 +73,40 @@ export async function addUserToGroup(
   return { success: true, message: "Usuário adicionado ao grupo!" };
 }
 
+export async function removeGroupUser(
+  request: Request,
+  groupId: number,
+  userId: number,
+) {
+  const api = apiClient(request);
+  const res = await api(`/groups/${groupId}/users/${userId}`, { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new ApiError(data.message ?? "Erro ao remover membro.", res.status);
+  }
+  return { success: true, message: "Membro removido do grupo." };
+}
+
+export async function updateGroupUserRole(
+  request: Request,
+  groupId: number,
+  userId: number,
+  role: "admin" | "student",
+) {
+  const api = apiClient(request);
+  const res = await api(`/groups/${groupId}/users/${userId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new ApiError(data.message ?? "Erro ao atualizar papel.", res.status);
+  }
+  return { success: true, message: "Papel do membro atualizado." };
+}
+
 export async function updateGroup(
   request: Request,
   formData: FormData,

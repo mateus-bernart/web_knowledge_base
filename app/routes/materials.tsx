@@ -2,7 +2,6 @@ import {
   Link,
   useActionData,
   useFetcher,
-  useLoaderData,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -11,7 +10,7 @@ import { apiClient } from "~/services/api";
 import { File, Globe, Lock, Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import CreateMaterialDialog from "~/components/CreateMaterialDialog";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Input } from "~/components/ui/input";
 import {
   createGroupMaterial,
@@ -21,7 +20,11 @@ import {
   getMaterials,
   getMaterialTypes,
 } from "~/services/materials";
-import type { Material, MaterialType } from "~/types";
+import {
+  MATERIAL_TYPE_LABELS,
+  type Material,
+  type MaterialType,
+} from "~/types";
 import { ApiError } from "~/errors";
 import { useActionToast } from "~/hooks/useActionToast";
 import { Badge } from "~/components/ui/badge";
@@ -42,15 +45,44 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const groupId = Number(params.groupId);
 
   try {
-    const [materials, types] = await Promise.all([
+    const fetches: Promise<unknown>[] = [
       getMaterials(api, groupId),
       getMaterialTypes(api),
-    ]);
+    ];
+
+    if (groupId) {
+      fetches.push(api(`/groups/${groupId}`), api("/user"));
+    }
+
+    const [materials, types, groupRes, userRes] = (await Promise.all(
+      fetches,
+    )) as [
+      Material[],
+      MaterialType[],
+      Response | undefined,
+      Response | undefined,
+    ];
+
+    let isGroupAdmin = false;
+    let currentUserId: number | undefined;
+
+    if (groupId && groupRes && userRes) {
+      const group = (groupRes as unknown as Response).ok
+        ? await (groupRes as unknown as Response).json()
+        : null;
+      const user = (userRes as unknown as Response).ok
+        ? await (userRes as unknown as Response).json()
+        : null;
+      isGroupAdmin = group?.current_user_role === "admin";
+      currentUserId = user?.id;
+    }
 
     return {
       materials: Array.isArray(materials) ? materials : [],
       materialTypes: Array.isArray(types) ? types : [],
       groupId,
+      isGroupAdmin,
+      currentUserId,
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -120,6 +152,8 @@ export default function Materials({ loaderData }: Route.ComponentProps) {
       materials={loaderData.materials}
       materialTypes={loaderData.materialTypes}
       groupId={loaderData?.groupId}
+      isGroupAdmin={loaderData?.isGroupAdmin}
+      currentUserId={loaderData?.currentUserId}
     />
   );
 }
@@ -128,10 +162,14 @@ export function MaterialsView({
   materials,
   materialTypes,
   groupId,
+  isGroupAdmin = false,
+  currentUserId,
 }: {
   materials: Material[];
   materialTypes: MaterialType[];
   groupId?: number;
+  isGroupAdmin?: boolean;
+  currentUserId?: number;
 }) {
   const [localSearch, setLocalSearch] = useState("");
   const [createOpen, setCreateOpen] = useState<boolean>(false);
@@ -140,6 +178,19 @@ export function MaterialsView({
   const fetcher = useFetcher();
 
   useActionToast(actionData, fetcher.data);
+
+  const filtered = useMemo(() => {
+    if (!localSearch.trim()) return materials;
+    const q = localSearch.toLowerCase();
+    return materials.filter(
+      (m) =>
+        m.tags.some((t) => t.description.toLowerCase().includes(q)) ||
+        m.title.toLowerCase().includes(q) ||
+        (m.content ?? "").toLowerCase().includes(q) ||
+        new Date(m.created_at).toLocaleDateString("pt-BR").includes(q) ||
+        new Date(m.updated_at).toLocaleDateString("pt-BR").includes(q),
+    );
+  }, [materials, localSearch]);
 
   return (
     <div className="overflow-x-hidden w-full">
@@ -170,104 +221,123 @@ export function MaterialsView({
       </div>
 
       {/* List */}
-      {materials?.map((material: Material) => (
-        <div
-          key={material.id}
-          className="relative group flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border w-full overflow-hidden"
-        >
-          <Link to={`/materials/${material.id}`} className="absolute inset-0" />
+      {filtered?.map((material: Material) => {
+        const material_type_label =
+          MATERIAL_TYPE_LABELS[material.material_type.description];
 
-          <div className="mt-0.5 p-2 rounded-md bg-muted shrink-0">
-            <File className="h-4 w-4 text-muted-foreground" />
-          </div>
+        return (
+          <div
+            key={material.id}
+            className="relative group flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border w-full overflow-hidden"
+          >
+            <Link
+              to={
+                groupId
+                  ? `/groups/${groupId}/materials/${material.id}`
+                  : `/materials/${material.id}`
+              }
+              className="absolute inset-0"
+            />
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-medium text-sm truncate block min-w-0 overflow-hidden">
-                {material.title}
-              </span>
-              {material.visibility.description === "public" ? (
-                <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
-              ) : (
-                <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
-              )}
+            <div className="mt-0.5 p-2 rounded-md bg-muted shrink-0">
+              <File className="h-4 w-4 text-muted-foreground" />
             </div>
 
-            {material.content && (
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-all">
-                {material.content}
-              </p>
-            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-medium text-sm truncate block min-w-0 overflow-hidden">
+                  {material.title}
+                </span>
+                {material.visibility.description === "public" ? (
+                  <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
+                ) : (
+                  <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+                )}
+              </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 mt-2 min-w-0">
-              <span className="text-xs text-muted-foreground shrink-0">
-                {material.material_type.description}
-              </span>
-              <span className="text-xs text-muted-foreground">·</span>
-              <span className="text-xs text-muted-foreground shrink-0">
-                {new Date(material.created_at).toLocaleDateString()}
-              </span>
-              {material.tags.length > 0 && (
-                <>
-                  <span className="text-xs text-muted-foreground">·</span>
-                  {material.tags.slice(0, 3).map((tag) => (
-                    <Badge
-                      key={tag.id}
-                      variant="outline"
-                      className="text-[10px] px-1.5 py-0 shrink-0"
+              {material.content && (
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-all">
+                  {material.content}
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-1.5 mt-2 min-w-0">
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {material_type_label}
+                </span>
+                <span className="text-xs text-muted-foreground">·</span>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {new Date(material.created_at).toLocaleDateString()}
+                </span>
+                {material.tags.length > 0 && (
+                  <>
+                    <span className="text-xs text-muted-foreground">·</span>
+                    {material.tags.slice(0, 3).map((tag) => (
+                      <Badge
+                        key={tag.id}
+                        variant="outline"
+                        className="text-[10px] px-1.5 py-0 shrink-0"
+                      >
+                        {tag.description}
+                      </Badge>
+                    ))}
+                    {material.tags.length > 3 && (
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        +{material.tags.length - 3}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {(!groupId ||
+              isGroupAdmin ||
+              material.user_id === currentUserId) && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0 relative z-10"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir material?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Essa ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex items-center">
+                    <fetcher.Form
+                      method="POST"
+                      action={
+                        groupId ? `/groups/${groupId}/materials` : `/materials`
+                      }
+                      className="flex w-full gap-2"
                     >
-                      {tag.description}
-                    </Badge>
-                  ))}
-                  {material.tags.length > 3 && (
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      +{material.tags.length - 3}
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
+                      <input type="hidden" name="id" value={material.id} />
+                      <input type="hidden" name="_method" value="DELETE" />
+                      <AlertDialogCancel className="flex-1 w-full">
+                        Cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        type="submit"
+                        className="flex-1 w-full"
+                      >
+                        Excluir
+                      </AlertDialogAction>
+                    </fetcher.Form>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 shrink-0 relative z-10"
-              >
-                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Excluir material?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Essa ação não pode ser desfeita.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter className="flex items-center">
-                <fetcher.Form
-                  method="POST"
-                  action={
-                    groupId ? `/groups/${groupId}/materials` : `/materials`
-                  }
-                  className="flex w-full gap-2"
-                >
-                  <input type="hidden" name="id" value={material.id} />
-                  <input type="hidden" name="_method" value="DELETE" />
-                  <AlertDialogCancel className="flex-1 w-full">
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction type="submit" className="flex-1 w-full">
-                    Excluir
-                  </AlertDialogAction>
-                </fetcher.Form>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

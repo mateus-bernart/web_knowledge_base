@@ -14,6 +14,7 @@ export default [
     index("routes/index.tsx"),
     route("logout", "routes/logout.tsx"),
     route("about", "routes/about.tsx"),
+    route("forum", "routes/forum.tsx"),
     ...prefix("materials", [
       index("routes/materials.tsx"),
       route(":materialId", "routes/material.tsx"),

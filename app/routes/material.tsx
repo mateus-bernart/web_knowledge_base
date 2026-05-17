@@ -1,8 +1,9 @@
 // routes/material.tsx
-import { Link, useFetcher, useLoaderData } from "react-router";
+import { Link, useFetcher } from "react-router";
 import type { Route } from "./+types/material";
 import {
   ArrowLeft,
+  ChevronRight,
   FileText,
   Globe,
   Lock,
@@ -17,14 +18,13 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
 import { useActionToast } from "~/hooks/useActionToast";
 import {
   addMaterialTag,
   deleteMaterialTag,
   updateMaterial,
 } from "~/services/materials";
-import type { Material } from "~/types";
+import { MATERIAL_TYPE_LABELS, type Material } from "~/types";
 
 type Tag = { id: number; description: string };
 
@@ -38,7 +38,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 
   const material: Material = await res.json();
-  return { material };
+  return { material, canEdit: true };
 }
 
 // ─── Action ────────────────────────────────────────────────────────────────
@@ -79,11 +79,33 @@ export async function action({ request, params }: Route.ActionArgs) {
 // ─── Component ─────────────────────────────────────────────────────────────
 
 export default function Material({ loaderData }: Route.ComponentProps) {
-  const { material } = loaderData as { material: Material };
+  const { material, canEdit } = loaderData as {
+    material: Material;
+    canEdit: boolean;
+  };
+  return <MaterialView material={material} canEdit={canEdit} />;
+}
 
+// ─── Shared View ───────────────────────────────────────────────────────────
+
+export function MaterialView({
+  material,
+  canEdit,
+  backPath,
+  backLabel,
+  showGroups = true,
+}: {
+  material: Material;
+  canEdit: boolean;
+  backPath?: string;
+  backLabel?: string;
+  showGroups?: boolean;
+}) {
   const contentFetcher = useFetcher();
   const addTagFetcher = useFetcher();
   const removeTagFetcher = useFetcher();
+  const material_type_label =
+    MATERIAL_TYPE_LABELS[material.material_type.description];
 
   useActionToast(
     contentFetcher.data,
@@ -104,7 +126,6 @@ export default function Material({ loaderData }: Route.ComponentProps) {
     setEditing(false);
   }
 
-  //captura o state e manda pro action com o fetcher. "_method" somente identificador.
   function saveContent() {
     contentFetcher.submit(
       { _method: "PATCH", title, content },
@@ -138,42 +159,44 @@ export default function Material({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <Link
-          to="/materials"
+          to={backPath ?? "/materials"}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Materiais
+          {backLabel ?? "Materiais"}
         </Link>
 
-        <div className="flex gap-2">
-          {editing ? (
-            <>
+        {canEdit && (
+          <div className="flex gap-2">
+            {editing ? (
+              <>
+                <Button
+                  size="sm"
+                  onClick={saveContent}
+                  disabled={contentFetcher.state !== "idle"}
+                >
+                  {contentFetcher.state !== "idle" ? "Salvando..." : "Salvar"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={cancelEdit}>
+                  Cancelar
+                </Button>
+              </>
+            ) : (
               <Button
                 size="sm"
-                onClick={saveContent}
-                disabled={contentFetcher.state !== "idle"}
+                variant="outline"
+                onClick={() => setEditing(true)}
               >
-                {contentFetcher.state !== "idle" ? "Salvando..." : "Salvar"}
+                <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                Editar
               </Button>
-              <Button size="sm" variant="outline" onClick={cancelEdit}>
-                Cancelar
-              </Button>
-            </>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setEditing(true)}
-            >
-              <Pencil className="h-3.5 w-3.5 mr-1.5" />
-              Editar
-            </Button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Title + meta */}
@@ -182,7 +205,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
           <FileText className="h-4 w-4 text-muted-foreground" />
         </div>
         <div className="flex-1 min-w-0">
-          {editing ? (
+          {canEdit && editing ? (
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -193,7 +216,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
           )}
           <div className="flex items-center gap-2 mt-1.5 text-sm text-muted-foreground flex-wrap">
             <Badge variant="outline" className="text-xs">
-              {material.material_type.description}
+              {material_type_label}
             </Badge>
             <span>·</span>
             {material.visibility.description === "public" ? (
@@ -217,7 +240,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
         <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
           Conteúdo
         </p>
-        {editing ? (
+        {canEdit && editing ? (
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -243,7 +266,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
               className="text-xs font-normal gap-1 pr-1"
             >
               {tag.description}
-              {editing && (
+              {canEdit && editing && (
                 <button
                   onClick={() => removeTag(tag.id)}
                   className="ml-0.5 hover:text-destructive transition-colors"
@@ -256,7 +279,7 @@ export default function Material({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
 
-        {editing && (
+        {canEdit && editing && (
           <div className="flex gap-2 mt-2">
             <Input
               value={tagInput}
@@ -298,6 +321,27 @@ export default function Material({ loaderData }: Route.ComponentProps) {
           </p>
         </div>
       </div>
+
+      {/* Groups */}
+      {showGroups && material.groups && material.groups.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+            Grupos
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {material.groups.map((group) => (
+              <Link
+                key={group.id}
+                to={`/groups/${group.id}/materials`}
+                className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border border-border bg-muted hover:bg-accent transition-colors"
+              >
+                {group.name}
+                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

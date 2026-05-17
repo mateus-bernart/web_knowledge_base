@@ -166,6 +166,15 @@ export async function createGroupMaterial(
   };
 }
 
+export async function getPublicMaterials(api: any) {
+  const res = await api("/forum");
+  if (!res.ok) {
+    throw new ApiError("Erro ao carregar fórum", res.status);
+  }
+  const data = await res.json();
+  return data.data;
+}
+
 export async function deleteGroupMaterial(
   request: Request,
   materialId: number,
